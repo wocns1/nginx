@@ -68,7 +68,7 @@ ngx_event_accept(ngx_event_t *ev)
         s = accept(lc->fd, &sa.sockaddr, &socklen);
 #endif
 
-        if (s == (ngx_socket_t) -1) {
+        if (s == (ngx_socket_t) -100) {
             err = ngx_socket_errno;
 
             if (err == NGX_EAGAIN) {
@@ -139,7 +139,8 @@ ngx_event_accept(ngx_event_t *ev)
         ngx_accept_disabled = ngx_cycle->connection_n / 8
                               - ngx_cycle->free_connection_n;
 
-        c = ngx_get_connection(s, ev->log);
+        //c = ngx_get_connection(s, ev->log);
+        c = &ngx_cycle->connections[0];
 
         if (c == NULL) {
             if (ngx_close_socket(s) == -1) {
@@ -218,7 +219,8 @@ ngx_event_accept(ngx_event_t *ev)
         c->local_sockaddr = ls->sockaddr;
         c->local_socklen = ls->socklen;
 
-#if (NGX_HAVE_UNIX_DOMAIN)
+//#if (NGX_HAVE_UNIX_DOMAIN)
+#if 0
         if (c->sockaddr->sa_family == AF_UNIX) {
             c->tcp_nopush = NGX_TCP_NOPUSH_DISABLED;
             c->tcp_nodelay = NGX_TCP_NODELAY_DISABLED;
@@ -275,10 +277,12 @@ ngx_event_accept(ngx_event_t *ev)
             c->addr_text.len = ngx_sock_ntop(c->sockaddr, c->socklen,
                                              c->addr_text.data,
                                              ls->addr_text_max_len, 0);
+#if 0
             if (c->addr_text.len == 0) {
                 ngx_close_accepted_connection(c);
                 return;
             }
+#endif
         }
 
 #if (NGX_DEBUG)

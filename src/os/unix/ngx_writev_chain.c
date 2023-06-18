@@ -186,8 +186,14 @@ ngx_writev(ngx_connection_t *c, ngx_iovec_t *vec)
 
 eintr:
 
-    n = writev(c->fd, vec->iovs, vec->count);
-
+   n = writev(STDERR_FILENO, vec->iovs, vec->count);
+   // n = writev(c->fd, vec->iovs, vec->count);
+    //ngx_log_error(NGX_LOG_ALERT, log, 0,
+      //            "file"
+        //          "%s",
+          //        vec->iovs->iov_base);
+          ngx_log_error(NGX_LOG_EMERG, c->log, err,
+                                  "%s", (char*)vec->iovs->iov_base);
     ngx_log_debug2(NGX_LOG_DEBUG_EVENT, c->log, 0,
                    "writev: %z of %uz", n, vec->size);
 

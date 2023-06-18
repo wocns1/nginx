@@ -785,7 +785,8 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 {
     int                events;
     uint32_t           revents;
-    ngx_int_t          instance, i;
+    //ngx_int_t          instance, i;
+    ngx_int_t          i;
     ngx_uint_t         level;
     ngx_err_t          err;
     ngx_event_t       *rev, *wev;
@@ -797,7 +798,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
     ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
                    "epoll timer: %M", timer);
 
-    events = epoll_wait(ep, event_list, (int) nevents, timer);
+    events = 1; // epoll_wait(ep, event_list, (int) nevents, timer);
 
     err = (events == -1) ? ngx_errno : 0;
 
@@ -834,15 +835,13 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
     }
 
     for (i = 0; i < events; i++) {
-        c = event_list[i].data.ptr;
 
-        instance = (uintptr_t) c & 1;
-        c = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);
-
+        c = cycle->connections;
         rev = c->read;
+        rev->instance = 1;
 
-        if (c->fd == -1 || rev->instance != instance) {
-
+#if 0
+        if (c->fd == -100 || rev->instance != instance) {
             /*
              * the stale event from a file descriptor
              * that was just closed in this iteration
@@ -852,8 +851,8 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
                            "epoll: stale event %p", c);
             continue;
         }
-
-        revents = event_list[i].events;
+#endif
+        revents = 1;// event_list[i].events;
 
         ngx_log_debug3(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
                        "epoll: fd:%d ev:%04XD d:%p",
@@ -879,7 +878,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
                           c->fd, revents);
         }
 #endif
-
+        rev->active = 1;
         if ((revents & EPOLLIN) && rev->active) {
 
 #if (NGX_HAVE_EPOLLRDHUP)
@@ -903,8 +902,8 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
         }
 
         wev = c->write;
-
         if ((revents & EPOLLOUT) && wev->active) {
+#if 0
 
             if (c->fd == -1 || wev->instance != instance) {
 
@@ -917,7 +916,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
                                "epoll: stale event %p", c);
                 continue;
             }
-
+#endif
             wev->ready = 1;
 #if (NGX_THREADS)
             wev->complete = 1;

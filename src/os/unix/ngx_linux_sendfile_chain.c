@@ -258,7 +258,40 @@ eintr:
     ngx_log_debug2(NGX_LOG_DEBUG_EVENT, c->log, 0,
                    "sendfile: @%O %uz", file->file_pos, size);
 
-    n = sendfile(c->fd, file->file->fd, &offset, size);
+    //wowowowow
+#if 0
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include<errno.h>
+    FILE *f = NULL;
+    f = fopen("./client.txt", "w+");
+    if(!f)
+    {}
+    ngx_log_error(NGX_LOG_EMERG, c->log, err,
+                "%s", strerror(errno));
+    fclose(f);
+    f = fopen("./client.txt", "w+");
+#endif
+FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    fp = fdopen(file->file->fd, "r");
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        ngx_log_error(NGX_LOG_EMERG, c->log, 0,
+                    "%d --  %s", offset,  line);
+    }
+
+    fclose(fp);
+    n = 238;
+    //n = sendfile(fileno(f), file->file->fd, &offset, size);
+    //fclose(f);
+    
+    //ngx_log_error(NGX_LOG_EMERG, c->log, err,
+    //            "%s", (char*)vec->iovs->iov_base);
 
     if (n == -1) {
         err = ngx_errno;
