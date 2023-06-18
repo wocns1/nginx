@@ -373,7 +373,6 @@ ngx_http_init_connection(ngx_connection_t *c)
     }
 }
 
-
 static void
 ngx_http_wait_request_handler(ngx_event_t *rev)
 {
@@ -502,7 +501,6 @@ ngx_http_wait_request_handler(ngx_event_t *rev)
     rev->handler = ngx_http_process_request_line;
     ngx_http_process_request_line(rev);
 }
-
 
 ngx_http_request_t *
 ngx_http_create_request(ngx_connection_t *c)

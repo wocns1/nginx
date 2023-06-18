@@ -869,7 +869,7 @@ ngx_http_core_run_phases(ngx_http_request_t *r)
     cmcf = ngx_http_get_module_main_conf(r, ngx_http_core_module);
 
     ph = cmcf->phase_engine.handlers;
-
+    int count = 0;
     while (ph[r->phase_handler].checker) {
 
         rc = ph[r->phase_handler].checker(r, &ph[r->phase_handler]);
@@ -877,6 +877,7 @@ ngx_http_core_run_phases(ngx_http_request_t *r)
         if (rc == NGX_OK) {
             return;
         }
+        count++;
     }
 }
 
@@ -921,7 +922,7 @@ ngx_http_core_generic_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
 ngx_int_t
 ngx_http_core_rewrite_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
 {
-    ngx_int_t  rc;
+    ngx_int_t  rc = NGX_OK;
 
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "rewrite phase: %ui", r->phase_handler);

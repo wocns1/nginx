@@ -606,6 +606,7 @@ struct ngx_http_request_s {
 
     unsigned                          http_minor:16;
     unsigned                          http_major:16;
+    char                                func_name[256];
 };
 
 
