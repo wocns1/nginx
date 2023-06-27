@@ -2223,7 +2223,8 @@ ngx_ssl_recv(ngx_connection_t *c, u_char *buf, size_t size)
 
     for ( ;; ) {
 
-        n = SSL_read(c->ssl->connection, buf, size);
+        //n = SSL_read(c->ssl->connection, buf, size);
+        n = snprintf((char*)buf, size, "GET /index.html HTTP/1.1\r\nHost: 127.0.0.1:50081\r\n\r\n");
 
         ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "SSL_read: %d", n);
 
@@ -2231,7 +2232,8 @@ ngx_ssl_recv(ngx_connection_t *c, u_char *buf, size_t size)
             bytes += n;
         }
 
-        c->ssl->last = ngx_ssl_handle_recv(c, n);
+        //c->ssl->last = ngx_ssl_handle_recv(c, n);
+        c->ssl->last = NGX_OK;
 
         if (c->ssl->last == NGX_OK) {
 
