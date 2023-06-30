@@ -705,9 +705,10 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
     ngx_worker_process_init(cycle, worker);
 
+    unsigned long long i = 0;
     ngx_setproctitle("worker process");
 
-    for ( ;; ) {
+    for ( i = 0; i < cycle->ngcount; i++) {
 
         if (ngx_exiting) {
             if (ngx_event_no_timers_left() == NGX_OK) {

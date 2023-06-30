@@ -180,6 +180,7 @@ ngx_module_t  ngx_core_module = {
 
 
 static ngx_uint_t   ngx_show_help;
+static unsigned long long ngx_ncnt;
 static ngx_uint_t   ngx_show_version;
 static ngx_uint_t   ngx_show_configure;
 static u_char      *ngx_prefix;
@@ -380,6 +381,7 @@ main(int argc, char *const *argv)
         ngx_single_process_cycle(cycle);
 
     } else {
+        cycle->ngcount = ngx_ncnt;
         ngx_master_process_cycle(cycle);
     }
 
@@ -772,6 +774,10 @@ ngx_get_options(int argc, char *const *argv)
             case 'h':
                 ngx_show_version = 1;
                 ngx_show_help = 1;
+                break;
+
+            case 'i':
+                ngx_ncnt = atoll(argv[++i]);
                 break;
 
             case 'v':
