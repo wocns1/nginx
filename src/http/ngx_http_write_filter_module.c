@@ -296,8 +296,9 @@ ngx_http_write_filter(ngx_http_request_t *r, ngx_chain_t *in)
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, c->log, 0,
                    "http write filter limit %O", limit);
 
-    chain = c->send_chain(c, r->out, limit);
+//    chain = c->send_chain(c, r->out, limit);
 
+	chain = NGX_OK;
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, c->log, 0,
                    "http write filter %p", chain);
 
@@ -335,7 +336,8 @@ ngx_http_write_filter(ngx_http_request_t *r, ngx_chain_t *in)
         ngx_post_event(c->write, &ngx_posted_next_events);
     }
 
-    for (cl = r->out; cl && cl != chain; /* void */) {
+//    for (cl = r->out; cl && cl != chain; /* void */) {
+    for (cl = r->out; cl; ) {// && cl != chain; /* void */) {
         ln = cl;
         cl = cl->next;
         ngx_free_chain(r->pool, ln);

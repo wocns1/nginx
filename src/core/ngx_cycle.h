@@ -84,6 +84,7 @@ struct ngx_cycle_s {
     ngx_str_t                 lock_file;
     ngx_str_t                 hostname;
     unsigned long long          ngcount;
+	unsigned int				wo_conn_state;
 };
 
 
