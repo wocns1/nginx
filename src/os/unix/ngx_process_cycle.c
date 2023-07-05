@@ -167,6 +167,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
                        "wake up, sigio %i", sigio);
 
+        ngx_reap = 0;
         if (ngx_reap) {
             ngx_reap = 0;
             ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "reap children");
@@ -243,10 +244,11 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
                                         ngx_signal_value(NGX_SHUTDOWN_SIGNAL));
         }
 
+        ngx_restart = 0;
         if (ngx_restart) {
             ngx_restart = 0;
             ngx_start_worker_processes(cycle, ccf->worker_processes,
-                                       NGX_PROCESS_RESPAWN);
+                                       NGX_PROCESS_NORESPAWN);
             ngx_start_cache_manager_processes(cycle, 0);
             live = 1;
         }
@@ -705,10 +707,10 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
     ngx_worker_process_init(cycle, worker);
 
-    unsigned long long i = 0;
+    //unsigned long long i = 0;
     ngx_setproctitle("worker process");
 
-    for ( i = 0; i < cycle->ngcount; i++) {
+    for ( ;;) {
 
         if (ngx_exiting) {
             if (ngx_event_no_timers_left() == NGX_OK) {
@@ -726,7 +728,7 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
         }
 
         if (ngx_quit) {
-            ngx_quit = 0;
+            ngx_quit = 1;
             ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0,
                           "gracefully shutting down");
             ngx_setproctitle("worker process is shutting down");

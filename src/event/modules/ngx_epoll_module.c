@@ -783,12 +783,12 @@ ngx_epoll_notify(ngx_event_handler_pt handler)
 static ngx_int_t
 ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 {
-    int                events;
+    unsigned long long events;
     uint32_t           revents;
     //ngx_int_t          instance, i;
-    ngx_int_t          i;
-    ngx_uint_t         level;
-    ngx_err_t          err;
+    unsigned long long i;
+    //ngx_uint_t         level;
+    //ngx_err_t          err;
     ngx_event_t       *rev, *wev;
     ngx_queue_t       *queue;
     ngx_connection_t  *c;
@@ -798,15 +798,16 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
     ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
                    "epoll timer: %M", timer);
 
-    events = 1; // epoll_wait(ep, event_list, (int) nevents, timer);
+    events = cycle->ngcount; // epoll_wait(ep, event_list, (int) nevents, timer);
 
-    err = (events == -1) ? ngx_errno : 0;
+    //err = (events == -1) ? ngx_errno : 0;
 
     if (flags & NGX_UPDATE_TIME || ngx_event_timer_alarm) {
         ngx_time_update();
     }
 
-    if (err) {
+#if 0
+    if (0) {
         if (err == NGX_EINTR) {
 
             if (ngx_event_timer_alarm) {
@@ -823,6 +824,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
         ngx_log_error(level, cycle->log, err, "epoll_wait() failed");
         return NGX_ERROR;
     }
+#endif
 
     if (events == 0) {
         if (timer != NGX_TIMER_INFINITE) {
@@ -931,6 +933,9 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
         }
     }
 
+    ngx_quit = 1;
+    ngx_terminate = 1;
+    ngx_exiting = 1;
     return NGX_OK;
 }
 

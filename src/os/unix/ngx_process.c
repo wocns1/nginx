@@ -399,7 +399,7 @@ ngx_signal_handler(int signo, siginfo_t *siginfo, void *ucontext)
             break;
 
         case SIGCHLD:
-            ngx_reap = 1;
+            //ngx_reap = 1;
             break;
         }
 
