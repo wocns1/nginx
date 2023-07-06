@@ -779,6 +779,17 @@ ngx_epoll_notify(ngx_event_handler_pt handler)
 
 #endif
 
+double time_diff(struct timeval x, struct timeval y)
+{
+    double x_ms, y_ms, diff;
+
+    x_ms = (double)x.tv_sec * 1000000 + (double)x.tv_usec;
+    y_ms = (double)y.tv_sec * 1000000 + (double)y.tv_usec;
+
+    diff = (double)y_ms - (double)x_ms;
+
+    return diff;
+}
 
 static ngx_int_t
 ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
@@ -835,9 +846,11 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
     for (i = 0; i < events; i++) {
         c = event_list[i].data.ptr;
-
         instance = (uintptr_t) c & 1;
         c = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);
+        gettimeofday(&cycle->start , NULL);
+        ngx_log_error(NGX_LOG_ALERT, cycle->log, 0,
+                      "Time between 2 req is %f us", time_diff(cycle->end, cycle->start));
 
         rev = c->read;
 
@@ -930,6 +943,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
                 wev->handler(wev);
             }
         }
+        gettimeofday(&cycle->end, NULL);
     }
 
     return NGX_OK;

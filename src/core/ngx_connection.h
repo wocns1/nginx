@@ -9,6 +9,7 @@
 #define _NGX_CONNECTION_H_INCLUDED_
 
 
+#include <sys/time.h>
 #include <ngx_config.h>
 #include <ngx_core.h>
 
