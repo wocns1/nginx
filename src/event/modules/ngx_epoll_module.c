@@ -848,9 +848,12 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
         c = event_list[i].data.ptr;
         instance = (uintptr_t) c & 1;
         c = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);
-        gettimeofday(&cycle->start , NULL);
+
+        clock_gettime(CLOCK_MONOTONIC, &cycle->tstart);
         ngx_log_error(NGX_LOG_ALERT, cycle->log, 0,
-                      "Time between 2 req is %f us", time_diff(cycle->end, cycle->start));
+                      "Time between 2 req is %.6f microSec\n",
+                      1.0e+6 * (((double)cycle->tstart.tv_sec + 1.0e-9 * cycle->tstart.tv_nsec) -
+                          ((double)cycle->tend.tv_sec + 1.0e-9 * cycle->tend.tv_nsec)));
 
         rev = c->read;
 
@@ -943,7 +946,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
                 wev->handler(wev);
             }
         }
-        gettimeofday(&cycle->end, NULL);
+        clock_gettime(CLOCK_MONOTONIC, &cycle->tend);
     }
 
     return NGX_OK;
