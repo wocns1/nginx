@@ -708,18 +708,12 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
     unsigned long long i = 0;
     ngx_setproctitle("worker process");
 
-#ifdef WHILEONE
-	sleep(2);
-#endif
     for ( i = 0; i <= cycle->ngcount; i++) {
 
-		cycle->wo_conn_state = 1;
-#ifdef WHILEONE
-		if (i == cycle->ngcount) {
-			cycle->wo_conn_state = 0;
-			sleep(2);
-		}
-#endif
+	cycle->wo_conn_state = 1;
+	if (i == cycle->ngcount) {
+		cycle->wo_conn_state = 0;
+	}
 
         if (ngx_exiting) {
             if (ngx_event_no_timers_left() == NGX_OK) {
